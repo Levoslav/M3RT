@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd ../..
+ls
+
 # Define datasets, model names, and model versions
 datasets=("marine" "photos")
 models=("clip" "align" "blip2" "openclip")
