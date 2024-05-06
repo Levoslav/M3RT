@@ -35,12 +35,12 @@ class OpenCLIPRetriever(Retriever):
             print(f'Unknown open_clip version: "{self.version}"')
             sys.exit(1)
         
-
-    def encode_images(self, images_paths ,out_dir=None, batch_size=500):
+    def encode_images(self, images_paths ,out_file_path=None, batch_size=500):
         batches  = [images_paths[i:i+batch_size] for i in range(0, len(images_paths), batch_size)]
         self.image_IDs = []
         self.image_encodings = None
-        for batch in batches:
+        self._print_runtime_message(message_type='images_encoding_start', batch_size=batch_size, num_of_batches=len(batches))
+        for i, batch in enumerate(batches):
             images = []
 
             # Preprocess Images
@@ -62,12 +62,13 @@ class OpenCLIPRetriever(Retriever):
                 else:
                     self.image_encodings = torch.cat((self.image_encodings, self.model.encode_image(preprocessed_images)), dim=0)
 
+            self._print_runtime_message(message_type='batch_encoded',batch_num=i+1)
+
         self.image_encodings = F.normalize(self.image_encodings, p=2, dim=-1)
-        # Save if out_dir specified
-        if out_dir is not None and self.image_encodings is not None:
-            torch.save(self.image_encodings, out_dir + f'/OpenCLIP_image_encodings_{self.version}.pth')
-            with open(out_dir + f'/OpenCLIP_images_IDs_{self.version}.pkl', 'wb') as f:
-                pickle.dump(self.image_IDs, f)
+        # Save if out_file_path specified
+        if out_file_path is not None and self.image_encodings is not None:
+            with open(out_file_path, 'wb') as f:
+                pickle.dump((self.image_IDs, self.image_encodings), f)
 
     def encode_text(self, text):
         # Preprocess text
@@ -77,25 +78,3 @@ class OpenCLIPRetriever(Retriever):
         with torch.no_grad():
             encoded_text = F.normalize(self.model.encode_text(text), p=2, dim=-1)
         return encoded_text
-
-    def load_encoded_images(self, directory):
-        # Load tensor from file
-        self.image_encodings = torch.load(os.path.join(directory ,f'OpenCLIP_image_encodings_{self.version}.pth'))
-        # Load list from file
-        with open(os.path.join(directory , f'OpenCLIP_images_IDs_{self.version}.pkl'), 'rb') as f:
-            self.image_IDs = pickle.load(f)
-
-    def compute_cumulation(self, labels: pd.DataFrame, out_dir=None):
-        ranks_cumulation = [0] * len(self.image_IDs)
-        for id, label in zip(labels.ID, labels.label):
-            ordered_images = self.compare_to_images(label)
-            rank = self._find_rank(ordered_images, id)
-            ranks_cumulation[rank:] = [x+1 for x in ranks_cumulation[rank:]]
-            # ranks_cumulation[rank] += 1
-
-            # Save if out_dir specified
-            if out_dir is not None :
-                dir = os.path.join(out_dir , f'OpenCLIP_cumulation_{self.version}.pkl')
-                with open(dir , 'wb') as f:
-                    pickle.dump(ranks_cumulation, f)
-        return ranks_cumulation

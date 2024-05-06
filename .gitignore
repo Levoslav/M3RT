@@ -1,0 +1,22 @@
+# Ignore all images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+
+# Ignore all .pkl files
+*.pkl
+
+# Ignore all .pth files
+*.pth
+
+# Ignore all CSV files
+*.csv
+
+# Ignore .DS_Store files created by macOS
+.DS_Store
+
+# Ignore __pycache__ directories and .pyc files
+__pycache__/
+*.pyc

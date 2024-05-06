@@ -8,17 +8,19 @@ import pickle
 import pandas as pd
 from transformers import AlignProcessor, AlignModel
 
+
 class ALIGNRetriever(Retriever):
     def __init__(self) -> None:
         super().__init__()
         self.preprocess = AlignProcessor.from_pretrained("kakaobrain/align-base")
         self.model = AlignModel.from_pretrained("kakaobrain/align-base")
 
-    def encode_images(self, images_paths ,out_dir=None, batch_size=50):
+    def encode_images(self, images_paths ,out_file_path=None, batch_size=500):
         batches  = [images_paths[i:i+batch_size] for i in range(0, len(images_paths), batch_size)]
         self.image_IDs = []
         self.image_encodings = None
-        for batch in batches:
+        self._print_runtime_message(message_type='images_encoding_start', batch_size=batch_size, num_of_batches=len(batches))
+        for i, batch in enumerate(batches):
             images = []
 
             # Preprocess Images
@@ -36,13 +38,14 @@ class ALIGNRetriever(Retriever):
                     self.image_encodings = outputs.image_embeds
                 else:
                     self.image_encodings = torch.cat((self.image_encodings, outputs.image_embeds), dim=0)
+            
+            self._print_runtime_message(message_type='batch_encoded',batch_num=i+1)
 
         self.image_encodings = F.normalize(self.image_encodings, p=2, dim=-1)
-        # Save if out_dir specified
-        if out_dir is not None and self.image_encodings is not None:
-            torch.save(self.image_encodings, out_dir + '/ALIGN_image_encodings.pth')
-            with open(out_dir + '/ALIGN_images_IDs.pkl', 'wb') as f:
-                pickle.dump(self.image_IDs, f)
+        # Save if out_file_path specified
+        if out_file_path is not None and self.image_encodings is not None:
+            with open(out_file_path, 'wb') as f:
+                pickle.dump((self.image_IDs, self.image_encodings), f)
 
     def encode_text(self, text):
         # Preprocess text
@@ -52,25 +55,3 @@ class ALIGNRetriever(Retriever):
         # Encode text
         outputs = self.model(**preprocessed_input)
         return F.normalize(outputs.text_embeds, p=2, dim=-1)
-
-    def load_encoded_images(self, directory):
-        # Load tensor from file
-        self.image_encodings = torch.load(os.path.join(directory ,'ALIGN_image_encodings.pth'))
-        # Load list from file
-        with open(os.path.join(directory , 'ALIGN_images_IDs.pkl'), 'rb') as f:
-            self.image_IDs = pickle.load(f)
-
-    def compute_cumulation(self, labels: pd.DataFrame, out_dir=None):
-        ranks_cumulation = [0] * len(self.image_IDs)
-        for id, label in zip(labels.ID, labels.label):
-            ordered_images = self.compare_to_images(label)
-            rank = self._find_rank(ordered_images, id)
-            ranks_cumulation[rank:] = [x+1 for x in ranks_cumulation[rank:]]
-            # ranks_cumulation[rank] += 1
-
-            # Save if out_dir specified
-            if out_dir is not None :
-                dir = os.path.join(out_dir , 'ALIGN_cumulation.pkl')
-                with open(dir , 'wb') as f:
-                    pickle.dump(ranks_cumulation, f)
-        return ranks_cumulation
