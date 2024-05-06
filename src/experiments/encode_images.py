@@ -6,6 +6,8 @@ from src.retrievers.blip2_retriever import BLIP2Retriever
 from src.retrievers.openclip_retriever import OpenCLIPRetriever
 import sys
 import glob
+import timeit
+
 
 def list_files(directory):
     return glob.glob(os.path.join(directory, "*.jpeg")) + glob.glob(os.path.join(directory, "*.jpg")) + glob.glob(os.path.join(directory, "*.png")) + glob.glob(os.path.join(directory, "*.JPG")) + glob.glob(os.path.join(directory, "*.JPEG"))
@@ -15,13 +17,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
     parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos"], required=True)
     parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"], required=True)
-    parser.add_argument("--version", type=str, help="Version name (only for 'openclip' model)", default=None)
+    parser.add_argument("version", type=str, help="Version name (only for 'openclip' model)", default=None)
 
     args = parser.parse_args()
     # encode_images(args.dataset, args.model, args.version)
     
     dataset_path = f'datasets/{args.dataset}/data'
-    storage_path = f'saves/image_features'
+    storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset
 
     if args.model == 'clip':
         retriever = CLIPRetriever()
@@ -36,7 +38,10 @@ if __name__ == "__main__":
         else:
             retriever = OpenCLIPRetriever(version=args.version)
 
-    print("encoding dataset...")
-    retriever.encode_images(images_paths=list_files(dataset_path), out_dir=storage_path, batch_size=1000)
-
+    images_paths = list_files(dataset_path)
+    batch_size = 1000
+    print("Encoding dataset...")
+    # Measure the execution time and start the encode_images
+    execution_time = timeit.timeit(lambda: retriever.encode_images(images_paths, storage_path, batch_size), number=1)
+    print(f"Encoding finished, execution time: {execution_time} s")
     
