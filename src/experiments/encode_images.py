@@ -4,9 +4,6 @@ import sys
 import glob
 import timeit
 
-# Add the directory containing the src module to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 def list_files(directory):
     return glob.glob(os.path.join(directory, "*.jpeg")) + glob.glob(os.path.join(directory, "*.jpg")) + glob.glob(os.path.join(directory, "*.png")) + glob.glob(os.path.join(directory, "*.JPG")) + glob.glob(os.path.join(directory, "*.JPEG"))
 
@@ -28,10 +25,10 @@ if __name__ == "__main__":
         retriever = CLIPRetriever()
     elif args.model == 'align':
         from align_retriever import ALIGNRetriever
-        retriever = ALIGNRetriever
+        retriever = ALIGNRetriever()
     elif args.model == 'blip2':
         from blip2_retriever import BLIP2Retriever
-        retriever = BLIP2Retriever
+        retriever = BLIP2Retriever() 
     elif args.model == 'openclip':
         if args.version is None:
             print("Specify openclip --version")

@@ -73,7 +73,7 @@ class Retriever:
                 return index
         return -1  # Return -1 if ID not found in any Image_ID
     
-    def _print_runtime_message(message_type, batch_num=None, num_of_batches=None, batch_size=None):
+    def _print_runtime_message(self, message_type, batch_num=None, num_of_batches=None, batch_size=None):
         if message_type == 'batch_encoded':
             print(f"    batch {batch_num}. encoded") 
         elif message_type == 'images_encoding_start':
