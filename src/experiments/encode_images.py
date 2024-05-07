@@ -1,9 +1,5 @@
 import argparse
 import os
-from src.retrievers.clip_retriever import CLIPRetriever
-from src.retrievers.align_retriever import ALIGNRetriever
-from src.retrievers.blip2_retriever import BLIP2Retriever
-from src.retrievers.openclip_retriever import OpenCLIPRetriever
 import sys
 import glob
 import timeit
@@ -28,16 +24,20 @@ if __name__ == "__main__":
     storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset
 
     if args.model == 'clip':
+        from clip_retriever import CLIPRetriever
         retriever = CLIPRetriever()
     elif args.model == 'align':
+        from align_retriever import ALIGNRetriever
         retriever = ALIGNRetriever
     elif args.model == 'blip2':
+        from blip2_retriever import BLIP2Retriever
         retriever = BLIP2Retriever
     elif args.model == 'openclip':
         if args.version is None:
             print("Specify openclip --version")
             sys.exit(1)
         else:
+            from openclip_retriever import OpenCLIPRetriever
             retriever = OpenCLIPRetriever(version=args.version)
 
     images_paths = list_files(dataset_path)
