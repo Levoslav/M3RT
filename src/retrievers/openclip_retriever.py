@@ -34,6 +34,10 @@ class OpenCLIPRetriever(Retriever):
         else:
             print(f'Unknown open_clip version: "{self.version}"')
             sys.exit(1)
+
+        print(f"moving model to device: {self.device}")
+        self.model = self.model.to(self.device)
+        print("Inicialization finished")
         
     def encode_images(self, images_paths ,out_file_path=None, batch_size=500):
         batches  = [images_paths[i:i+batch_size] for i in range(0, len(images_paths), batch_size)]
@@ -50,10 +54,11 @@ class OpenCLIPRetriever(Retriever):
 
             preprocessed_images = []
             for image in images:
-                image_input = self.preprocess(image).unsqueeze(0).to(self.device)
+                image_input = self.preprocess(image).unsqueeze(0)
                 preprocessed_images.append(image_input)
-            preprocessed_images = torch.cat(preprocessed_images)
+            preprocessed_images = torch.cat(preprocessed_images).to(self.device)
             del images
+            print(f"   batch {i+1}. preprocessed")
 
             # Encode Images
             with torch.no_grad():
@@ -67,6 +72,7 @@ class OpenCLIPRetriever(Retriever):
         self.image_encodings = F.normalize(self.image_encodings, p=2, dim=-1)
         # Save if out_file_path specified
         if out_file_path is not None and self.image_encodings is not None:
+            self.image_encodings = self.image_encodings.cpu() # Move to cpu to save
             with open(out_file_path, 'wb') as f:
                 pickle.dump((self.image_IDs, self.image_encodings), f)
 

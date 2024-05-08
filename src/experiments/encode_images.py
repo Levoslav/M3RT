@@ -10,8 +10,8 @@ def list_files(directory):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
-    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos"], required=True)
-    parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"], required=True)
+    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos"])
+    parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"])
     parser.add_argument("version", type=str, help="Version name (only for 'openclip' model)", default=None)
 
     args = parser.parse_args()
