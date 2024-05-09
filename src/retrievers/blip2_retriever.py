@@ -24,7 +24,7 @@ class BLIP2Retriever(Retriever):
             # Preprocess Images
             for image_name in batch:
                 images.append(Image.open(image_name).convert('RGB'))
-                self.image_IDs.append(image_name.strip("/").split("/")[-1].split(".")[0]) # Extract image id from path
+                self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
 
             preprocessed_images = []
             for image in images:
