@@ -38,7 +38,7 @@ if __name__ == "__main__":
             retriever = OpenCLIPRetriever(version=args.version)
 
     images_paths = list_files(dataset_path)
-    batch_size = 1000
+    batch_size = 100
     print("Encoding dataset...")
     # Measure the execution time and start the encode_images
     execution_time = timeit.timeit(lambda: retriever.encode_images(images_paths, storage_path, batch_size), number=1)

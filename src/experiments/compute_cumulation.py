@@ -15,30 +15,40 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    image_encodings_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset
+    image_encodings_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + '.pkl'
     labels_path = f'datasets/{args.dataset}/labels/labels.csv'
-    cumulation_storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + f'-{args.labels}.pkl'
+    cumulation_storage_path = f'saves/cumulations/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + f'-{args.labels}.pkl'
 
-    # if args.model == 'clip':
-    #     from clip_retriever import CLIPRetriever
-    #     retriever = CLIPRetriever()
-    # elif args.model == 'align':
-    #     from align_retriever import ALIGNRetriever
-    #     retriever = ALIGNRetriever()
-    # elif args.model == 'blip2':
-    #     from blip2_retriever import BLIP2Retriever
-    #     retriever = BLIP2Retriever() 
-    # elif args.model == 'openclip':
-    #     if args.version is None:
-    #         print("Specify openclip --version")
-    #         sys.exit(1)
-    #     else:
-    #         from openclip_retriever import OpenCLIPRetriever
-    #         retriever = OpenCLIPRetriever(version=args.version)
+    if args.model == 'clip':
+        from clip_retriever import CLIPRetriever
+        retriever = CLIPRetriever()
+    elif args.model == 'align':
+        from align_retriever import ALIGNRetriever
+        retriever = ALIGNRetriever()
+    elif args.model == 'blip2':
+        from blip2_retriever import BLIP2Retriever
+        retriever = BLIP2Retriever() 
+    elif args.model == 'openclip':
+        if args.version is None:
+            print("Specify openclip --version")
+            sys.exit(1)
+        else:
+            from openclip_retriever import OpenCLIPRetriever
+            retriever = OpenCLIPRetriever(version=args.version)
 
-    # # Load image_features
-    # retriever.load_encoded_images(image_encodings_path)
+    # Load image_features
+    retriever.load_encoded_images(image_encodings_path)
 
-    labels = pd.read_csv(labels_path)
-    for i,x in enumerate(labels.ID):
-        print(str(i+1) +". " + str(x))
+    # Load and prepare labels
+    labels = pd.read_csv(labels_path, dtype={"ID": str})
+    if args.labels == 'short':
+        labels = labels[['ID','short_label']]
+    elif args.labels == 'long':
+        labels = labels[['ID','long_label']]
+    labels.columns = ['ID', 'label']
+
+    print("Starting evaluation")
+    execution_time = timeit.timeit(lambda: retriever.compute_cumulation(labels, cumulation_storage_path), number=1)
+    print(f"Evaluation finished, execution time: {execution_time} s")
+
+    
