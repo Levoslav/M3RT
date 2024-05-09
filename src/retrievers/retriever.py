@@ -41,6 +41,8 @@ class Retriever:
     def compare_to_images(self, text):  # Returns a sorted list of tuples (cosine_similarity, Image_ID)
         text_encoding = self.encode_text(text).T
         cosine_similarities = torch.mm(self.image_encodings, text_encoding)
+        # Move to cpu 
+        cosine_similarities = cosine_similarities.cpu()
         return sorted(zip(cosine_similarities.tolist(),self.image_IDs),reverse=True)
 
     def plot_top_images(self, sorted_list, n, querry):
