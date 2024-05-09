@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # encode_images(args.dataset, args.model, args.version)
     
     dataset_path = f'datasets/{args.dataset}/data'
-    storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset
+    storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + '.pkl'
 
     if args.model == 'clip':
         from clip_retriever import CLIPRetriever
