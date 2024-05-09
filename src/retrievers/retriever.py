@@ -21,6 +21,8 @@ class Retriever:
         # Load list from file
         with open(file_path, 'rb') as f:
             self.image_IDs, self.image_encodings = pickle.load(f)
+        # Move image encodings to cuda/cpu
+        self.image_encodings = self.image_encodings.to(self.device)
         self._print_runtime_message(message_type='image_encodings_loaded')
 
     def compute_cumulation(self, labels: pd.DataFrame, out_file_path=None):
@@ -69,7 +71,7 @@ class Retriever:
     
     def _find_rank(self, list_of_tuples, ID):
         for index, (cosine_similarity, Image_ID) in enumerate(list_of_tuples):
-            if Image_ID.endswith(ID):
+            if Image_ID == ID:
                 return index
         return -1  # Return -1 if ID not found in any Image_ID
     
