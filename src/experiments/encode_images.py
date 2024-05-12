@@ -10,7 +10,7 @@ def list_files(directory):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
-    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos"])
+    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos", "marine_compet"])
     parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"])
     parser.add_argument("version", type=str, help="Version name (only for 'openclip' model)", default=None)
 
@@ -37,8 +37,13 @@ if __name__ == "__main__":
             from openclip_retriever import OpenCLIPRetriever
             retriever = OpenCLIPRetriever(version=args.version)
 
-    images_paths = list_files(dataset_path)
     batch_size = 100
+    if args.dataset == 'marine_compet':
+        with open("filename.txt", "r") as file:
+            images_paths = [line.rstrip("\n") for line in file]
+    else:
+        images_paths = list_files(dataset_path)
+
     print("Encoding dataset...")
     # Measure the execution time and start the encode_images
     execution_time = timeit.timeit(lambda: retriever.encode_images(images_paths, storage_path, batch_size), number=1)
