@@ -28,11 +28,11 @@ for dataset in "${datasets[@]}"; do
                     echo "  Version: $version"
 
                     # Execute encode_images.py with all parameters
-                    python src/experiments/encode_images.py "$dataset" "$label" "$model" "$version"
+                    python src/experiments/compute_ranks.py "$dataset" "$label" "$model" "$version"
                 done
             else
                 # Execute encode_images.py without version
-                python src/experiments/encode_images.py "$dataset" "$label" "$model"
+                python src/experiments/compute_ranks.py "$dataset" "$label" "$model"
             fi
 
             echo "------------------------------------------------------------------"
