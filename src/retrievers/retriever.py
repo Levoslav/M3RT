@@ -66,10 +66,13 @@ class Retriever:
         plt.tight_layout()
         plt.show()
 
-    def get_ranks(self, labels: pd.DataFrame):
+    def compute_ranks(self, labels: pd.DataFrame, out_file_path=None):
         ranks = [(label, self._find_rank(self.compare_to_images(label), id))
         for id, label in zip(labels.ID, labels.label)]
-        return sorted(ranks)
+        ranks = sorted(ranks)
+        if out_file_path is not None :
+            with open(out_file_path , 'wb') as f:
+                pickle.dump(ranks, f)
     
     def _find_rank(self, list_of_tuples, ID):
         for index, (cosine_similarity, Image_ID) in enumerate(list_of_tuples):

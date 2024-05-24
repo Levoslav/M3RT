@@ -9,22 +9,22 @@ def load_from_file(file_path):
 def plot_cumulative_graph(cumulations, m, names, title):
     # Generate x values (ranks)
     x = np.arange(1, m + 1)
-
+    
     # Plot each set of cumulations
     for cumulation, name in zip(cumulations, names):
         cumulation = cumulation[:m]
         y = np.array(cumulation)
-        plt.plot(x, y, linestyle='-', linewidth=2, label=name)
+        plt.plot(x, y, linestyle='-', linewidth=1.5, label=name)
 
-    # Set x ticks with stride 5
-    stride = m // 10
-    plt.xticks(np.arange(1, m + 1, 1), [str(i) if i % stride == 0 or i == 1 else '' for i in range(1, m + 1)])
+    # Set ticks
+    stride = m // 10 # 10 ticks
+    ticks = [1] + list(range(stride ,m+1, stride))
+    plt.xticks(ticks)
+    plt.yticks(range(0,101,10))
 
-    # Set y ticks with stride 10
-    plt.yticks(np.arange(1, 101, 1), [str(i) if i % 10 == 0 or i == 1 else '' for i in range(1, 101)])
-
-    # Add vertical lines as background for better orientation
-    # plt.grid(axis='x', linestyle='--', alpha=0.5)
+    # Set grids
+    plt.grid(axis='y', linestyle='--', alpha=0.25)
+    plt.grid(axis='x', linestyle='--', alpha=0.25)
 
     # Labeling axes
     plt.xlabel('Rank')
@@ -46,6 +46,6 @@ photos_short_cumulations = ['openclip-ViT_SO400M_14_webli-photos-short.pkl', 'op
 photos_long_cumulations = ['openclip-ViT_SO400M_14_webli-photos-long.pkl', 'openclip-ViT_H_14_dfn5b-photos-long.pkl', 'openclip-ViT_L_16_webli-photos-long.pkl', 'openclip-ViT_B_16_webli-photos-long.pkl', 'openclip-ViT_G_14_laion2b-photos-long.pkl', 'openclip-ViT_H_14_laion2b-photos-long.pkl']
 names = ['ViT_SO400M_14_webli', 'ViT_H_14_dfn5b', 'ViT_L_16_webli', 'ViT_B_16_webli', 'ViT_G_14_laion2b (the OpenClip I used before)', 'ViT_H_14_laion2b (the OpenClip used in competition)']
 
-cumulations = [load_from_file(directory+file_name) for file_name in marine_long_cumulations]
+cumulations = [load_from_file(directory+file_name) for file_name in photos_short_cumulations]
 
-plot_cumulative_graph(cumulations, 100 , names, " Marine dataset  /  long labels  /  Open Clips")
+plot_cumulative_graph(cumulations, 50 , names, " Marine dataset  |  long labels  |  Open Clips")

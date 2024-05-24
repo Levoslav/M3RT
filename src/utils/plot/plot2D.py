@@ -72,10 +72,10 @@ def load_from_file(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-clip_ranks = load_from_file('CLIP_ranks.pkl')
-align_ranks = load_from_file('ALIGN_ranks.pkl')
-blip2_ranks = load_from_file('BLIP2_ranks.pkl')
-openclip_ranks = load_from_file('OpenCLIP_ranks.pkl')
+clip_ranks = load_from_file('src/utils/plot/CLIP_ranks.pkl')
+align_ranks = load_from_file('src/utils/plot/ALIGN_ranks.pkl')
+blip2_ranks = load_from_file('src/utils/plot/BLIP2_ranks.pkl')
+openclip_ranks = load_from_file('src/utils/plot/OpenCLIP_ranks.pkl')
 clip_ranks = [b for a,b in clip_ranks]
 align_ranks = [b for a,b in align_ranks]
 blip2_ranks = [b for a,b in blip2_ranks]
@@ -89,7 +89,7 @@ d = {
     'BLIP2':blip2_ranks,
     'OpenCLIP':openclip_ranks
 }
-df_labels = pd.read_csv('labels.csv')
-labels = sorted(list(df_labels.label))
+df_labels = pd.read_csv('datasets/photos/labels/labels.csv')
+labels = sorted(list(df_labels.short_label))
 
 plot_ranks2D(d,labels)
