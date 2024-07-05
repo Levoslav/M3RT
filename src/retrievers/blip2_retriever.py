@@ -28,9 +28,9 @@ class BLIP2Retriever(Retriever):
 
             preprocessed_images = []
             for image in images:
-                image_input = self.vis_processors["eval"](image).unsqueeze(0).to(self.device)
+                image_input = self.vis_processors["eval"](image).unsqueeze(0)
                 preprocessed_images.append(image_input)
-            preprocessed_images = torch.cat(preprocessed_images)
+            preprocessed_images = torch.cat(preprocessed_images).to(self.device)
             del images
 
             # Build sample
@@ -48,6 +48,7 @@ class BLIP2Retriever(Retriever):
         self.image_encodings = F.normalize(self.image_encodings, p=2, dim=-1)
         # Save if out_file_path specified
         if out_file_path is not None and self.image_encodings is not None:
+            self.image_encodings = self.image_encodings.cpu() # Move to cpu to save
             with open(out_file_path, 'wb') as f:
                 pickle.dump((self.image_IDs, self.image_encodings), f)
             
