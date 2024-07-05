@@ -9,8 +9,9 @@ from lavis.models import load_model_and_preprocess
 
 
 class BLIP2Retriever(Retriever):
-    def __init__(self) -> None:
+    def __init__(self, IDs_in_integer_format=True) -> None:
         super().__init__()
+        self.IDs_in_integer_format = IDs_in_integer_format
         self.model, self.vis_processors, self.txt_processors = load_model_and_preprocess(name="blip2_feature_extractor", model_type="pretrain_vitL", is_eval=True, device=self.device)
 
     def encode_images(self, images_paths, out_file_path=None, batch_size=500):
@@ -24,7 +25,10 @@ class BLIP2Retriever(Retriever):
             # Preprocess Images
             for image_name in batch:
                 images.append(Image.open(image_name).convert('RGB'))
-                self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                if self.IDs_in_integer_format:
+                    self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                else:
+                    self.image_IDs.append(image_name.strip("/").split("/")[-1].split(".")[0])
 
             preprocessed_images = []
             for image in images:

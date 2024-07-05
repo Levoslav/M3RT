@@ -10,7 +10,7 @@ def list_files(directory):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
-    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos", "marine_compet"])
+    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos", "marine_compet", "lsc"])
     parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"])
     parser.add_argument("version", type=str, help="Version name (only for 'openclip' model)", default=None)
 
@@ -20,22 +20,24 @@ if __name__ == "__main__":
     dataset_path = f'datasets/{args.dataset}/data'
     storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + '.pkl'
 
+    IDs_fromat = False if args.dataset == "lsc" else True
+
     if args.model == 'clip':
         from clip_retriever import CLIPRetriever
-        retriever = CLIPRetriever()
+        retriever = CLIPRetriever(IDs_fromat)
     elif args.model == 'align':
         from align_retriever import ALIGNRetriever
-        retriever = ALIGNRetriever()
+        retriever = ALIGNRetriever(IDs_fromat)
     elif args.model == 'blip2':
         from blip2_retriever import BLIP2Retriever
-        retriever = BLIP2Retriever() 
+        retriever = BLIP2Retriever(IDs_fromat) 
     elif args.model == 'openclip':
         if args.version is None:
             print("Specify openclip --version")
             sys.exit(1)
         else:
             from openclip_retriever import OpenCLIPRetriever
-            retriever = OpenCLIPRetriever(version=args.version)
+            retriever = OpenCLIPRetriever(version=args.version, IDs_in_integer_format=IDs_fromat)
 
     batch_size = 100
     if args.dataset == 'marine_compet':

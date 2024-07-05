@@ -8,8 +8,9 @@ import pandas as pd
 import clip
 
 class CLIPRetriever(Retriever):
-    def __init__(self) -> None:
+    def __init__(self, IDs_in_integer_format=True) -> None:
         super().__init__()
+        self.IDs_in_integer_format = IDs_in_integer_format
         self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
 
     def encode_images(self, images_paths ,out_file_path=None, batch_size=500):
@@ -23,7 +24,10 @@ class CLIPRetriever(Retriever):
             # Preprocess Images
             for image_name in batch:
                 images.append(Image.open(image_name))
-                self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                if self.IDs_in_integer_format:
+                    self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                else:
+                    self.image_IDs.append(image_name.strip("/").split("/")[-1].split(".")[0])
 
             preprocessed_images = []
             for image in images:

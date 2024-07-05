@@ -10,8 +10,9 @@ import sys
 
 
 class OpenCLIPRetriever(Retriever):
-    def __init__(self, version) -> None:
+    def __init__(self, version, IDs_in_integer_format=True) -> None:
         super().__init__()
+        self.IDs_in_integer_format = IDs_in_integer_format
         self.version = version
         if self.version == 'ViT_G_14_laion2b':
             self.model, _, self.preprocess = open_clip.create_model_and_transforms('ViT-g-14', pretrained='laion2b_s34b_b88k')
@@ -50,7 +51,10 @@ class OpenCLIPRetriever(Retriever):
             # Preprocess Images
             for image_name in batch:
                 images.append(Image.open(image_name))
-                self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                if self.IDs_in_integer_format:
+                    self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                else:
+                    self.image_IDs.append(image_name.strip("/").split("/")[-1].split(".")[0])
 
             preprocessed_images = []
             for image in images:

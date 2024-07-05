@@ -10,8 +10,9 @@ from transformers import AlignProcessor, AlignModel
 
 
 class ALIGNRetriever(Retriever):
-    def __init__(self) -> None:
+    def __init__(self, IDs_in_integer_format=True) -> None:
         super().__init__()
+        self.IDs_in_integer_format = IDs_in_integer_format
         self.preprocess = AlignProcessor.from_pretrained("kakaobrain/align-base")
         self.model = AlignModel.from_pretrained("kakaobrain/align-base").to(self.device)
 
@@ -26,7 +27,10 @@ class ALIGNRetriever(Retriever):
             # Preprocess Images
             for image_name in batch:
                 images.append(Image.open(image_name))
-                self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                if self.IDs_in_integer_format:
+                    self.image_IDs.append(f'{int(image_name.strip("/").split("/")[-1].split(".")[0]):05d}') # Extract image id from path
+                else:
+                    self.image_IDs.append(image_name.strip("/").split("/")[-1].split(".")[0])
 
             preprocessed_input = self.preprocess(text="",images=images, return_tensors="pt").to(self.device)
             del images
@@ -50,7 +54,7 @@ class ALIGNRetriever(Retriever):
 
     def encode_text(self, text):
         # Preprocess text
-        there_must_be_picture = Image.new("RGB", (50, 50), color=(0, 0, 0))  # I don't like it either
+        there_must_be_picture = Image.new("RGB", (5, 5), color=(0, 0, 0))  # I don't like it either
         preprocessed_input = self.preprocess(text=text,images=there_must_be_picture, return_tensors="pt").to(self.device)
 
         # Encode text
