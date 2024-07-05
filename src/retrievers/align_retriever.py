@@ -50,7 +50,7 @@ class ALIGNRetriever(Retriever):
 
     def encode_text(self, text):
         # Preprocess text
-        there_must_be_picture = Image.open(requests.get("http://images.cocodataset.org/val2017/000000039769.jpg", stream=True).raw)  # I don't like it either
+        there_must_be_picture = Image.new("RGB", (50, 50), color=(0, 0, 0))  # I don't like it either
         preprocessed_input = self.preprocess(text=text,images=there_must_be_picture, return_tensors="pt").to(self.device)
 
         # Encode text
