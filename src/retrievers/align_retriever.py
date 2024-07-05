@@ -12,7 +12,7 @@ from transformers import AlignProcessor, AlignModel
 class ALIGNRetriever(Retriever):
     def __init__(self) -> None:
         super().__init__()
-        self.preprocess = AlignProcessor.from_pretrained("kakaobrain/align-base").to(self.device)
+        self.preprocess = AlignProcessor.from_pretrained("kakaobrain/align-base")
         self.model = AlignModel.from_pretrained("kakaobrain/align-base").to(self.device)
 
     def encode_images(self, images_paths ,out_file_path=None, batch_size=500):
