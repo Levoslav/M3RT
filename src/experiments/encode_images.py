@@ -10,7 +10,7 @@ def list_files(directory):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
-    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos", "marine_compet", "lsc"])
+    parser.add_argument("dataset", type=str, help="Dataset name", choices=["marine", "photos", "marine_compet", "lsc", "reset"])
     parser.add_argument("model", type=str, help="Model name", choices=["clip", "align", "blip2", "openclip"])
     parser.add_argument("version", type=str, help="Version name (only for 'openclip' model)", default=None)
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     dataset_path = f'datasets/{args.dataset}/data'
     storage_path = f'saves/image_features/{args.model}-' + ((args.version + '-') if args.model == 'openclip' else '') + args.dataset + '.pkl'
 
-    IDs_fromat = False if args.dataset == "lsc" else True
+    IDs_fromat = False if args.dataset == "lsc" or args.dataset == "reset" else True
 
     if args.model == 'clip':
         from clip_retriever import CLIPRetriever
