@@ -2,8 +2,11 @@ import argparse
 import pickle
 import torch
 import pandas as pd
-
+counter = 0
 def compute_cosine_distances(query_id, candidate1_id, candidate2_id):
+    if query_id not in ID_index or candidate1_id not in ID_index or candidate2_id not in ID_index:
+        counter += 1
+        return 1.11, 1.11, 1.11
     query = image_encodings[ID_index[query_id]]
     candidate1 = image_encodings[ID_index[candidate1_id]]
     candidate2 = image_encodings[ID_index[candidate2_id]]
@@ -26,7 +29,7 @@ if __name__ == "__main__":
     print("Loading encodings...")
     with open(encodings_path, 'rb') as f:
         image_IDs, image_encodings = pickle.load(f)
-
+    
     print("Indexing encodings IDs...")
     ID_index = {id:i for i,id in enumerate(image_IDs)}
 
@@ -56,7 +59,7 @@ if __name__ == "__main__":
         counter += 1
         if counter % 100 == 0: # Print message every 100 rows
             print(f"epoch {int(counter/100)}")
-    print("Distances computet.")
+    print(f"Distances computet. Skiped lines: {counter}")
 
     print("Extending and saving new csv...")
     name1 = f"{args.model}_cosdist_query_candidate1"
