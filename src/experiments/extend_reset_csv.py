@@ -2,10 +2,10 @@ import argparse
 import pickle
 import torch
 import pandas as pd
-counter = 0
+
 def compute_cosine_distances(query_id, candidate1_id, candidate2_id):
     if query_id not in ID_index or candidate1_id not in ID_index or candidate2_id not in ID_index:
-        counter += 1
+        number_of_droped_lines += 1
         return 1.11, 1.11, 1.11
     query = image_encodings[ID_index[query_id]]
     candidate1 = image_encodings[ID_index[candidate1_id]]
@@ -19,12 +19,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Encode images using a specified model.")
     parser.add_argument("old_csv", type=str, help="old csv name")
     parser.add_argument("extended_csv", type=str, help="New extended csv name")
-    parser.add_argument("model", type=str, help="Model name", choices=["ViT_SO400M_14_webli", "ViT_H_14_dfn5b", "ViT_H_14_laion2b"])
+    parser.add_argument("model", type=str, help="Model name", choices=["ViT_SO400M_14_webli", "ViT_H_14_dfn5b", "ViT_H_14_laion2b","clip"])
     args = parser.parse_args()
  
     csv_path = f'saves/reset_csvs/'
     encodings_path = f'saves/image_features/openclip-{args.model}-reset.pkl'
+    if args.model == "clip":
+        encodings_path = f'saves/image_features/clip-reset.pkl'
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    number_of_droped_lines = 0
 
     print("Loading encodings...")
     with open(encodings_path, 'rb') as f:
@@ -38,7 +41,7 @@ if __name__ == "__main__":
 
     print("Loading old csv")
     df = pd.read_csv(csv_path+args.old_csv)
-    print("size: ", df.size)
+    print("size: ", df.shape)
 
     print("Starting to compute distances...")
     q_c1_cosd = []
@@ -59,7 +62,7 @@ if __name__ == "__main__":
         counter += 1
         if counter % 100 == 0: # Print message every 100 rows
             print(f"epoch {int(counter/100)}")
-    print(f"Distances computet. Skiped lines: {counter}")
+    print(f"Distances computet. Skiped lines: {number_of_droped_lines}")
 
     print("Extending and saving new csv...")
     name1 = f"{args.model}_cosdist_query_candidate1"
@@ -68,7 +71,7 @@ if __name__ == "__main__":
     df[name1] = q_c1_cosd
     df[name2] = q_c2_cosd
     df[name3] = c1_c2_cosd
-    print("New size: ", df.size)
-    df.to_csv(csv_path+args.extended_csv)
+    print("New size: ", df.shape)
+    df.to_csv(csv_path+args.extended_csv,index=False)
     print(f"Saved: {args.extended_csv}")
     
