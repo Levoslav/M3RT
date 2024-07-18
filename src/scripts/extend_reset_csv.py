@@ -5,14 +5,13 @@ import pandas as pd
 
 def compute_cosine_distances(query_id, candidate1_id, candidate2_id):
     if query_id not in ID_index or candidate1_id not in ID_index or candidate2_id not in ID_index:
-        number_of_droped_lines += 1
         return 1.11, 1.11, 1.11
     query = image_encodings[ID_index[query_id]]
     candidate1 = image_encodings[ID_index[candidate1_id]]
     candidate2 = image_encodings[ID_index[candidate2_id]]
-    q_c1_cosd = 1 - float(torch.mm(query.unsqueeze(0), candidate1.unsqueeze(1))[0,0])
-    q_c2_cosd = 1 - float(torch.mm(query.unsqueeze(0), candidate2.unsqueeze(1))[0,0])
-    c1_c2_cosd = 1 - float(torch.mm(candidate1.unsqueeze(0), candidate2.unsqueeze(1))[0,0])
+    q_c1_cosd = 1 - float(torch.mm(query.unsqueeze(0).float(), candidate1.unsqueeze(1).float())[0,0])
+    q_c2_cosd = 1 - float(torch.mm(query.unsqueeze(0).float(), candidate2.unsqueeze(1).float())[0,0])
+    c1_c2_cosd = 1 - float(torch.mm(candidate1.unsqueeze(0).float(), candidate2.unsqueeze(1).float())[0,0])
     return q_c1_cosd, q_c2_cosd, c1_c2_cosd
 
 if __name__ == "__main__":
